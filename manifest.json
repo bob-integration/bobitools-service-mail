@@ -1,0 +1,19 @@
+{
+  "license": "GPL-3.0-or-later",
+  "id": "mail",
+  "label": "Mail",
+  "version": "0.1.0",
+  "description": "Service d'envoi d'e-mails (SMTP) — alertes et notifications des outils.",
+  "settings_keys": {
+    "mail_enabled":    { "type": "bool", "default": false },
+    "mail_smtp_host":  { "type": "str",  "default": "" },
+    "mail_smtp_port":  { "type": "int",  "default": 587 },
+    "mail_security":   { "type": "str",  "default": "starttls" },
+    "mail_username":   { "type": "str",  "default": "" },
+    "mail_password":   { "type": "str",  "default": "" },
+    "mail_from":       { "type": "str",  "default": "" },
+    "mail_default_to": { "type": "str",  "default": "" },
+    "mail_token":      { "type": "str",  "default": "" },
+    "mail_timeout":    { "type": "int",  "default": 15 }
+  }
+}

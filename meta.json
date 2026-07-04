@@ -1,0 +1,15 @@
+{
+  "version": "0.1.0",
+  "published_at": "2026-06-29",
+  "changes": {
+    "Nouveautés": [
+      "Service global d'envoi d'e-mails (SMTP) : les outils peuvent remonter des alertes/notifications.",
+      "Envoi asynchrone (file d'attente + worker), best-effort ; résultat journalisé en audit.",
+      "Configuration SMTP depuis Réglages → Mail (hôte, port, sécurité none/starttls/ssl, identifiants, expéditeur, destinataires d'alerte par défaut) ; bouton « Envoyer un test » synchrone.",
+      "Accès plugins : helper in-process ctx.send_mail(...) + route HTTP /api/mail/send protégée par token partagé (outils Docker).",
+      "Secrets (mot de passe SMTP, token) masqués dans l'UI et rédigés dans l'audit."
+    ],
+    "Corrections": [],
+    "Bugs connus": []
+  }
+}
