@@ -24,6 +24,7 @@ de l'UI utilise `send_now()`, synchrone, pour un retour pass/échec immédiat.
 import logging
 import queue
 import smtplib
+import ssl
 import threading
 from email.message import EmailMessage
 from email.utils import parseaddr
@@ -102,14 +103,28 @@ def _smtp_send(msg):
     password = settings.get("mail_password") or ""
     timeout = int(settings.get("mail_timeout") or 15)
 
+    # Contexte TLS VÉRIFIANT (chaîne de certification + nom d'hôte). Sans ce contexte
+    # explicite, smtplib retombe sur `ssl._create_stdlib_context()` : verify_mode=CERT_NONE
+    # et check_hostname=False — autrement dit le canal était chiffré mais avec N'IMPORTE
+    # QUEL certificat, sans lien avec `mail_smtp_host`. Un intercepteur actif (ARP/DNS)
+    # se présentait donc comme le relais et récoltait `mail_password` au `smtp.login()`
+    # qui suit, sans que rien ne l'indique. Le chiffrement sans vérification d'identité
+    # ne protège de rien d'autre que de l'écoute passive.
+    # Conséquence assumée : un relais interne à certificat auto-signé (ou joint par IP
+    # sans SAN iPAddress) est désormais REFUSÉ à la connexion, avec une erreur SSL
+    # explicite remontée en audit « fail » / dans le retour du bouton test. C'est
+    # volontaire : le laisser passer silencieusement était le défaut d'origine. Le jour
+    # où un tel relais doit être admis, en faire un réglage explicite et visible, jamais
+    # le comportement par défaut.
+    ctx = ssl.create_default_context()
     if security == "ssl":
-        smtp = smtplib.SMTP_SSL(host, port, timeout=timeout)
+        smtp = smtplib.SMTP_SSL(host, port, timeout=timeout, context=ctx)
     else:
         smtp = smtplib.SMTP(host, port, timeout=timeout)
     try:
         smtp.ehlo()
         if security == "starttls":
-            smtp.starttls()
+            smtp.starttls(context=ctx)
             smtp.ehlo()
         if username:
             smtp.login(username, password)
